@@ -6,8 +6,8 @@
   "scripts": {
     "test": "cross-env npm run test-redux && npm run test-redux-thunk && npm run test-react-redux",
     "test-react-redux": "dtslint ./DefinitelyTyped/types/react-redux",
-    "test-redux": "typings-tester --config ./redux/test/typescript/tsconfig.json ./redux/test/typescript",
-    "test-redux-thunk": "typings-tester --config ./redux-thunk/test/tsconfig.json ./redux-thunk/test",
+    "test-redux": "typings-tester --config ./redux/test/typescript/tsconfig.json --dir ./redux/test/typescript/",
+    "test-redux-thunk": "typings-tester --config ./redux-thunk/test/tsconfig.json --dir ./redux-thunk/test/",
     "test-project": ""
   },
   "keywords": [],
