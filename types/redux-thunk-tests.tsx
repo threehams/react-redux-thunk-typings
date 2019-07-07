@@ -6,11 +6,11 @@ import thunk, {
   ThunkDispatch,
   ThunkMiddleware
 } from "redux-thunk";
-import { Assert } from "conditional-type-checks";
+import { Assert, IsExact } from "conditional-type-checks";
 
-type State = {
+interface State {
   foo: string;
-};
+}
 
 type Actions = { type: "FOO" } | { type: "BAR"; result: number };
 
@@ -30,24 +30,22 @@ const store = createStore(
 );
 
 store.dispatch(dispatch => {
-  dispatch({ type: "FOO" });
-  // typings:expect-error
-  dispatch({ type: "BAR" });
-  dispatch({ type: "BAR", result: 5 });
-  // typings:expect-error
-  store.dispatch({ type: "BAZ" });
+  type Param = Parameters<typeof dispatch>[0];
+  type TestParam = Assert<
+    IsExact<Param, { type: "FOO" } | { type: "BAR"; result: number }>,
+    true
+  >;
 });
 
 function testGetState(): ThunkResult<void> {
   return (dispatch, getState) => {
     const state = getState();
-    const foo: string = state.foo;
-    dispatch({ type: "FOO" });
-    // typings:expect-error
-    dispatch({ type: "BAR" });
-    dispatch({ type: "BAR", result: 5 });
-    // typings:expect-error
-    dispatch({ type: "BAZ" });
+    type TestState = Assert<IsExact<typeof state.foo, string>, true>;
+    type Param = Parameters<typeof dispatch>[0];
+    type TestParam = Assert<
+      IsExact<Param, { type: "FOO" } | { type: "BAR"; result: number }>,
+      true
+    >;
     // Can dispatch another thunk action
     dispatch(anotherThunkAction());
   };
@@ -69,39 +67,36 @@ function promiseThunkAction(): ThunkResult<Promise<boolean>> {
 
 const standardAction = () => ({ type: "FOO" });
 
-interface ActionDispatchs {
-  anotherThunkAction: ThunkActionDispatch<typeof anotherThunkAction>;
-  promiseThunkAction: ThunkActionDispatch<typeof promiseThunkAction>;
-  standardAction: typeof standardAction;
-}
+() => {
+  interface ActionDispatchs {
+    anotherThunkAction: ThunkActionDispatch<typeof anotherThunkAction>;
+    promiseThunkAction: ThunkActionDispatch<typeof promiseThunkAction>;
+    standardAction: typeof standardAction;
+  }
 
-// test that bindActionCreators correctly returns actions responses of ThunkActions
-// also ensure standard action creators still work as expected
-const actions: ActionDispatchs = bindActionCreators(
-  {
-    anotherThunkAction,
-    promiseThunkAction,
-    standardAction
-  },
-  store.dispatch
-);
+  // test that bindActionCreators correctly returns actions responses of ThunkActions
+  // also ensure standard action creators still work as expected
+  const actions: ActionDispatchs = bindActionCreators(
+    {
+      anotherThunkAction,
+      promiseThunkAction,
+      standardAction
+    },
+    store.dispatch
+  );
 
-actions.anotherThunkAction() === "hello";
-// typings:expect-error
-actions.anotherThunkAction() === false;
-actions.promiseThunkAction().then(res => console.log(res));
-// typings:expect-error
-actions.promiseThunkAction().prop;
-actions.standardAction().type;
-// typings:expect-error
-actions.standardAction().other;
+  actions.anotherThunkAction() === "hello";
+  actions.anotherThunkAction() === false; // $ExpectError
+  actions.promiseThunkAction().then(res => console.log(res));
+  actions.promiseThunkAction().prop; // $ExpectError
+  actions.standardAction().type;
+  actions.standardAction().other; // $ExpectError
+};
 
 store.dispatch({ type: "FOO" });
-// typings:expect-error
-store.dispatch({ type: "BAR" });
+store.dispatch({ type: "BAR" }); // $ExpectError
 store.dispatch({ type: "BAR", result: 5 });
-// typings:expect-error
-store.dispatch({ type: "BAZ" });
+store.dispatch({ type: "BAZ" }); // $ExpectError
 store.dispatch(testGetState());
 
 const storeThunkArg = createStore(
@@ -114,14 +109,12 @@ const storeThunkArg = createStore(
 );
 
 storeThunkArg.dispatch((dispatch, getState, extraArg) => {
-  const bar: string = extraArg;
-  store.dispatch({ type: "FOO" });
-  // typings:expect-error
-  store.dispatch({ type: "BAR" });
-  store.dispatch({ type: "BAR", result: 5 });
-  // typings:expect-error
-  store.dispatch({ type: "BAZ" });
-  console.log(extraArg);
+  type TestExtraArg = Assert<IsExact<typeof extraArg, string>, true>;
+  type Param = Parameters<typeof store.dispatch>[0];
+  type Test = Assert<
+    IsExact<Param, { type: "FOO" } | { type: "BAR"; result: number }>,
+    true
+  >;
 });
 
 const callDispatchAsync_anyAction = (

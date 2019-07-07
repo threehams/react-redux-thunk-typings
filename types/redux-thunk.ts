@@ -100,12 +100,22 @@ declare module "redux-thunk" {
    * Redux behaviour changed by middleware, so overloads here
    */
   module "redux" {
+    /*
+     * Overload to add thunk support to Redux's dispatch() function.
+     * Useful for react-redux or any other library which could use this type.
+     */
+    interface Dispatch<A extends Action = AnyAction> {
+      <TReturnType, TState, TExtraThunkArg, TBasicAction extends Action>(
+        thunk: ThunkAction<TReturnType, TState, TExtraThunkArg, TBasicAction>
+      ): TReturnType;
+    }
+
     /**
      * Overload for bindActionCreators redux function, returns expects responses
      * from thunk actions
      */
     function bindActionCreators<
-      TActionCreators extends ActionCreatorsMapObject<any>
+      TActionCreators extends ActionCreatorsMapObject
     >(
       actionCreators: TActionCreators,
       dispatch: Dispatch

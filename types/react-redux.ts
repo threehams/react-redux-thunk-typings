@@ -37,13 +37,13 @@ declare module "react-redux" {
   import hoistNonReactStatics = require("hoist-non-react-statics");
 
   // Omit taken from https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html
-  export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+  type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-  export interface DispatchProp<A extends Action = AnyAction> {
+  interface DispatchProp<A extends Action = AnyAction> {
     dispatch: Dispatch<A>;
   }
 
-  export type AdvancedComponentDecorator<TProps, TOwnProps> = (
+  type AdvancedComponentDecorator<TProps, TOwnProps> = (
     component: ComponentType<TProps>
   ) => ComponentClass<TOwnProps>;
 
@@ -59,7 +59,7 @@ declare module "react-redux" {
    * - if property P is present in InjectedProps but does not extend the
    *   DecorationTargetProps[P] definition, its definition will be that of InjectedProps[P]
    */
-  export type Matching<InjectedProps, DecorationTargetProps> = {
+  type Matching<InjectedProps, DecorationTargetProps> = {
     [P in keyof DecorationTargetProps]: P extends keyof InjectedProps
       ? InjectedProps[P] extends DecorationTargetProps[P]
         ? DecorationTargetProps[P]
@@ -77,7 +77,7 @@ declare module "react-redux" {
    * required by the decorated (right hand side) component.
    * But any property required by the decorated component must be satisfied by the injected property.
    */
-  export type Shared<InjectedProps, DecorationTargetProps> = {
+  type Shared<InjectedProps, DecorationTargetProps> = {
     [P in Extract<
       keyof InjectedProps,
       keyof DecorationTargetProps
@@ -87,11 +87,11 @@ declare module "react-redux" {
   };
 
   // Infers prop type from component C
-  export type GetProps<C> = C extends ComponentType<infer P> ? P : never;
+  type GetProps<C> = C extends ComponentType<infer P> ? P : never;
 
   // Applies LibraryManagedAttributes (proper handling of defaultProps
   // and propTypes), as well as defines WrappedComponent.
-  export type ConnectedComponentClass<
+  type ConnectedComponentClass<
     C extends ComponentType<any>,
     P
   > = ComponentClass<JSX.LibraryManagedAttributes<C, P>> &
@@ -102,10 +102,9 @@ declare module "react-redux" {
   // Injects props and removes them from the prop requirements.
   // Will not pass through the injected props if they are passed in during
   // render. Also adds new prop requirements from TNeedsProps.
-  export type InferableComponentEnhancerWithProps<
-    TInjectedProps,
-    TNeedsProps
-  > = <C extends ComponentType<Matching<TInjectedProps, GetProps<C>>>>(
+  type InferableComponentEnhancerWithProps<TInjectedProps, TNeedsProps> = <
+    C extends ComponentType<Matching<TInjectedProps, GetProps<C>>>
+  >(
     component: C
   ) => ConnectedComponentClass<
     C,
@@ -115,11 +114,11 @@ declare module "react-redux" {
   // Injects props and removes them from the prop requirements.
   // Will not pass through the injected props if they are passed in during
   // render.
-  export type InferableComponentEnhancer<
+  type InferableComponentEnhancer<
     TInjectedProps
   > = InferableComponentEnhancerWithProps<TInjectedProps, {}>;
 
-  export type InferThunkActionCreatorType<
+  type InferThunkActionCreatorType<
     TActionCreator extends (...args: any[]) => any
   > = TActionCreator extends (
     ...args: infer TParams
@@ -127,15 +126,15 @@ declare module "react-redux" {
     ? (...args: TParams) => TReturn
     : TActionCreator;
 
-  export type HandleThunkActionCreator<
-    TActionCreator
-  > = TActionCreator extends (...args: any[]) => any
+  type HandleThunkActionCreator<TActionCreator> = TActionCreator extends (
+    ...args: any[]
+  ) => any
     ? InferThunkActionCreatorType<TActionCreator>
     : TActionCreator;
 
   // redux-thunk middleware returns thunk's return value from dispatch call
   // https://github.com/reduxjs/redux-thunk#composition
-  export type ResolveThunks<TDispatchProps> = TDispatchProps extends {
+  type ResolveThunks<TDispatchProps> = TDispatchProps extends {
     [key: string]: any;
   }
     ? {
@@ -145,7 +144,7 @@ declare module "react-redux" {
 
   // the conditional type is to support TypeScript 3.0, which does not support mapping over tuples and arrays;
   // once the typings are updated to at least TypeScript 3.1, a simple mapped type can replace this mess
-  export type ResolveArrayThunks<
+  type ResolveArrayThunks<
     TDispatchProps extends ReadonlyArray<any>
   > = TDispatchProps extends [
     infer A1,
@@ -273,7 +272,7 @@ declare module "react-redux" {
    * @param mergeProps
    * @param options
    */
-  export interface Connect {
+  interface Connect {
     // tslint:disable:no-unnecessary-generics
     (): InferableComponentEnhancer<DispatchProp>;
 
@@ -413,58 +412,53 @@ declare module "react-redux" {
   /**
    * The connect function. See {@type Connect} for details.
    */
-  export const connect: Connect;
+  const connect: Connect;
 
-  export type MapStateToProps<TStateProps, TOwnProps, State> = (
+  type MapStateToProps<TStateProps, TOwnProps, State> = (
     state: State,
     ownProps: TOwnProps
   ) => TStateProps;
 
-  export type MapStateToPropsFactory<TStateProps, TOwnProps, State> = (
+  type MapStateToPropsFactory<TStateProps, TOwnProps, State> = (
     initialState: State,
     ownProps: TOwnProps
   ) => MapStateToProps<TStateProps, TOwnProps, State>;
 
-  export type MapStateToPropsParam<TStateProps, TOwnProps, State> =
+  type MapStateToPropsParam<TStateProps, TOwnProps, State> =
     | MapStateToPropsFactory<TStateProps, TOwnProps, State>
     | MapStateToProps<TStateProps, TOwnProps, State>
     | null
     | undefined;
 
-  export type MapDispatchToPropsFunction<TDispatchProps, TOwnProps> = (
+  type MapDispatchToPropsFunction<TDispatchProps, TOwnProps> = (
     dispatch: Dispatch<Action>,
     ownProps: TOwnProps
   ) => TDispatchProps;
 
-  export type MapDispatchToProps<TDispatchProps, TOwnProps> =
+  type MapDispatchToProps<TDispatchProps, TOwnProps> =
     | MapDispatchToPropsFunction<TDispatchProps, TOwnProps>
     | TDispatchProps;
 
-  export type MapDispatchToPropsFactory<TDispatchProps, TOwnProps> = (
+  type MapDispatchToPropsFactory<TDispatchProps, TOwnProps> = (
     dispatch: Dispatch<Action>,
     ownProps: TOwnProps
   ) => MapDispatchToPropsFunction<TDispatchProps, TOwnProps>;
 
-  export type MapDispatchToPropsParam<TDispatchProps, TOwnProps> =
+  type MapDispatchToPropsParam<TDispatchProps, TOwnProps> =
     | MapDispatchToPropsFactory<TDispatchProps, TOwnProps>
     | MapDispatchToProps<TDispatchProps, TOwnProps>;
 
-  export type MapDispatchToPropsNonObject<TDispatchProps, TOwnProps> =
+  type MapDispatchToPropsNonObject<TDispatchProps, TOwnProps> =
     | MapDispatchToPropsFactory<TDispatchProps, TOwnProps>
     | MapDispatchToPropsFunction<TDispatchProps, TOwnProps>;
 
-  export type MergeProps<
-    TStateProps,
-    TDispatchProps,
-    TOwnProps,
-    TMergedProps
-  > = (
+  type MergeProps<TStateProps, TDispatchProps, TOwnProps, TMergedProps> = (
     stateProps: TStateProps,
     dispatchProps: TDispatchProps,
     ownProps: TOwnProps
   ) => TMergedProps;
 
-  export interface Options<
+  interface Options<
     State = {},
     TStateProps = {},
     TOwnProps = {},
@@ -530,7 +524,7 @@ declare module "react-redux" {
    * @param connectOptions If specified, further customizes the behavior of the connector. Additionally, any extra
    *     options will be passed through to your <code>selectorFactory</code> in the <code>factoryOptions</code> argument.
    */
-  export function connectAdvanced<S, TProps, TOwnProps, TFactoryOptions = {}>(
+  function connectAdvanced<S, TProps, TOwnProps, TFactoryOptions = {}>(
     // tslint:disable-next-line no-unnecessary-generics
     selectorFactory: SelectorFactory<S, TProps, TOwnProps, TFactoryOptions>,
     connectOptions?: ConnectOptions & TFactoryOptions
@@ -544,18 +538,18 @@ declare module "react-redux" {
    * call, the component will not be re-rendered. It's the responsibility of <code>selector</code> to return that
    * previous object when appropriate.
    */
-  export type SelectorFactory<S, TProps, TOwnProps, TFactoryOptions> = (
+  type SelectorFactory<S, TProps, TOwnProps, TFactoryOptions> = (
     dispatch: Dispatch<Action>,
     factoryOptions: TFactoryOptions
   ) => Selector<S, TProps, TOwnProps>;
 
-  export type Selector<S, TProps, TOwnProps = null> = TOwnProps extends
+  type Selector<S, TProps, TOwnProps = null> = TOwnProps extends
     | null
     | undefined
     ? (state: S) => TProps
     : (state: S, ownProps: TOwnProps) => TProps;
 
-  export interface ConnectOptions {
+  interface ConnectOptions {
     /**
      * Computes the connector component's displayName property relative to that of the wrapped component. Usually
      * overridden by wrapper functions.
@@ -606,15 +600,12 @@ declare module "react-redux" {
     context?: Context<ReactReduxContextValue>;
   }
 
-  export interface ReactReduxContextValue<
-    SS = any,
-    A extends Action = AnyAction
-  > {
+  interface ReactReduxContextValue<SS = any, A extends Action = AnyAction> {
     store: Store<SS, A>;
     storeState: SS;
   }
 
-  export interface ProviderProps<A extends Action = AnyAction> {
+  interface ProviderProps<A extends Action = AnyAction> {
     /**
      * The single Redux store in your application.
      */
@@ -630,7 +621,7 @@ declare module "react-redux" {
   /**
    * Makes the Redux store available to the connect() calls in the component hierarchy below.
    */
-  export class Provider<A extends Action = AnyAction> extends Component<
+  class Provider<A extends Action = AnyAction> extends Component<
     ProviderProps<A>
   > {}
 
@@ -638,20 +629,20 @@ declare module "react-redux" {
    * Exposes the internal context used in react-redux. It is generally advised to use the connect HOC to connect to the
    * redux store instead of this approeach.
    */
-  export const ReactReduxContext: Context<ReactReduxContextValue>;
+  const ReactReduxContext: Context<ReactReduxContextValue>;
 
   /**
    * Wraps ReactDOM or React Native's internal unstable_batchedUpdate function. You can use it to ensure that
    * multiple actions dispatched outside of React only result in a single render update.
    */
-  export function batch(cb: () => void): void;
+  function batch(cb: () => void): void;
 
   /**
    * Compares two arbitrary values for shallow equality. Object values are compared based on their keys, i.e. they must
    * have the same keys and for each key the value must be equal according to the `Object.is()` algorithm. Non-object
    * values are also compared with the same algorithm as `Object.is()`.
    */
-  export function shallowEqual(left: any, right: any): boolean;
+  function shallowEqual(left: any, right: any): boolean;
 
   // tslint:disable:no-unnecessary-generics
 
@@ -669,7 +660,7 @@ declare module "react-redux" {
    * import React, { useCallback } from 'react'
    * import { useDispatch } from 'react-redux'
    *
-   * export const CounterComponent = ({ value }) => {
+   * const CounterComponent = ({ value }) => {
    *   const dispatch = useDispatch()
    *   return (
    *     <div>
@@ -683,8 +674,8 @@ declare module "react-redux" {
    */
   // NOTE: the first overload below and note above can be removed if redux-thunk typings add an overload for
   // the Dispatch function (see also this PR: https://github.com/reduxjs/redux-thunk/pull/247)
-  export function useDispatch<TDispatch = Dispatch<any>>(): TDispatch;
-  export function useDispatch<A extends Action = AnyAction>(): Dispatch<A>;
+  // function useDispatch<TDispatch = Dispatch<any>>(): TDispatch;
+  function useDispatch<A extends Action = AnyAction>(): Dispatch<A>;
 
   /**
    * A hook to access the redux store's state. This hook takes a selector function
@@ -709,12 +700,12 @@ declare module "react-redux" {
    * import { useSelector } from 'react-redux'
    * import { RootState } from './store'
    *
-   * export const CounterComponent = () => {
+   * const CounterComponent = () => {
    *   const counter = useSelector((state: RootState) => state.counter)
    *   return <div>{counter}</div>
    * }
    */
-  export function useSelector<TState, TSelected>(
+  function useSelector<TState, TSelected>(
     selector: (state: TState) => TSelected,
     equalityFn?: (left: TSelected, right: TSelected) => boolean
   ): TSelected;
@@ -732,7 +723,7 @@ declare module "react-redux" {
    * const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
    *
    */
-  export interface TypedUseSelectorHook<TState> {
+  interface TypedUseSelectorHook<TState> {
     <TSelected>(
       selector: (state: TState) => TSelected,
       equalityFn?: (left: TSelected, right: TSelected) => boolean
@@ -749,15 +740,12 @@ declare module "react-redux" {
    * import React from 'react'
    * import { useStore } from 'react-redux'
    *
-   * export const ExampleComponent = () => {
+   * const ExampleComponent = () => {
    *   const store = useStore()
    *   return <div>{store.getState()}</div>
    * }
    */
-  export function useStore<S = any, A extends Action = AnyAction>(): Store<
-    S,
-    A
-  >;
+  function useStore<S = any, A extends Action = AnyAction>(): Store<S, A>;
 
   // tslint:enable:no-unnecessary-generics
 }
