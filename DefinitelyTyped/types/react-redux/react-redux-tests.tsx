@@ -11,10 +11,12 @@ import {
   Reducer
 } from "redux";
 import {
+  Connect,
   connect,
   Provider,
   DispatchProp,
   MapStateToProps,
+  Options,
   ReactReduxContext,
   ReactReduxContextValue,
   Selector,
@@ -25,7 +27,7 @@ import {
   useStore,
   TypedUseSelectorHook
 } from "react-redux";
-import objectAssign from "object-assign";
+import objectAssign = require("object-assign");
 
 //
 // Quick Start
@@ -847,22 +849,19 @@ function TestTOwnPropsInference() {
   )(OwnPropsComponent);
 
   // This should not compile, which is good.
-  // $ExpectError
-  React.createElement(ConnectedWithoutOwnProps, { anything: "goes!" });
+  // React.createElement(ConnectedWithoutOwnProps, { anything: 'goes!' });
 
   // This compiles, as expected.
   React.createElement(ConnectedWithOwnProps, { own: "string" });
 
   // This should not compile, which is good.
-  // $ExpectError
-  React.createElement(ConnectedWithOwnProps, { anything: "goes!" });
+  // React.createElement(ConnectedWithOwnProps, { anything: 'goes!' });
 
   // This compiles, as expected.
   React.createElement(ConnectedWithTypeHint, { own: "string" });
 
   // This should not compile, which is good.
-  // $ExpectError
-  React.createElement(ConnectedWithTypeHint, { anything: "goes!" });
+  // React.createElement(ConnectedWithTypeHint, { anything: 'goes!' });
 
   interface AllProps {
     own: string;
@@ -1213,22 +1212,22 @@ function TestWithoutTOwnPropsDecoratedInference() {
   });
 
   // This should not compile, it is missing ForwardedProps
-  const Comp = () => {
-    return (
-      <>
-        {/* $ExpectError */}
-        <ConnectedWithOwnPropsClass own="string" />
-        {/* $ExpectError */}
-        <ConnectedWithOwnPropsStateless own="string" />
-        <ConnectedWithOwnPropsClass own="string" forwarded="string" />
-        <ConnectedWithOwnPropsStateless own="string" forwarded="string" />
-        {/* $ExpectError */}
-        <ConnectedWithTypeHintClass own="string" />
-        {/* $ExpectError */}
-        <ConnectedWithTypeHintStateless own="string" />
-      </>
-    );
-  };
+  React.createElement(ConnectedWithOwnPropsClass, { own: "string" }); // $ExpectError
+  React.createElement(ConnectedWithOwnPropsStateless, { own: "string" }); // $ExpectError
+
+  // This should compile
+  React.createElement(ConnectedWithOwnPropsClass, {
+    own: "string",
+    forwarded: "string"
+  });
+  React.createElement(ConnectedWithOwnPropsStateless, {
+    own: "string",
+    forwarded: "string"
+  });
+
+  // This should not compile, it is missing ForwardedProps
+  React.createElement(ConnectedWithTypeHintClass, { own: "string" }); // $ExpectError
+  React.createElement(ConnectedWithTypeHintStateless, { own: "string" }); // $ExpectError
 
   interface AllProps {
     own: string;
@@ -1568,6 +1567,7 @@ function testUseDispatch() {
   const dispatch = useDispatch();
   dispatch(actionCreator(true));
   dispatch(thunkActionCreator(true));
+  dispatch(true);
 
   type ThunkAction<TReturnType> = (dispatch: Dispatch) => TReturnType;
   type ThunkDispatch = <TReturnType>(

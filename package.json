@@ -4,21 +4,23 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env npm run test-redux && npm run test-redux-thunk && npm run test-react-redux",
+    "test-react-redux": "dtslint ./DefinitelyTyped/types/react-redux",
+    "test-redux": "typings-tester --config ./redux/test/typescript/tsconfig.json ./redux/test/typescript",
+    "test-redux-thunk": "typings-tester --config ./redux-thunk/test/tsconfig.json ./redux-thunk/test",
+    "test-project": ""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/hoist-non-react-statics": "^3.3.1",
-    "@types/object-assign": "^4.0.30",
-    "@types/react": "^16.8.23",
-    "@types/react-dom": "^16.8.4",
     "conditional-type-checks": "^1.0.1",
+    "cross-env": "^5.2.0",
+    "csstype": "^2.6.5",
     "dtslint": "^0.8.0",
     "react": "^16.8.6",
-    "symbol-observable": "^1.2.0",
     "tslint": "^5.18.0",
-    "typescript": "^3.5.2"
+    "typescript": "^3.5.2",
+    "typings-tester": "^0.3.2"
   }
 }

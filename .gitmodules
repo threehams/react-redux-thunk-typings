@@ -1,0 +1,9 @@
+[submodule "redux-thunk"]
+	path = redux-thunk
+	url = https://github.com/reduxjs/redux-thunk.git
+[submodule "redux"]
+	path = redux
+	url = https://github.com/reduxjs/redux.git
+[submodule "react-redux"]
+	path = react-redux
+	url = https://github.com/reduxjs/react-redux.git
